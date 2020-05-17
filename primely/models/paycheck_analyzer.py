@@ -185,6 +185,16 @@ class FullAnalyzer(QueueingModel):
             # 'message': 'Check data/output/graphs_and_charts for exported image!'
         }))
 
+    def _setup_output_dir(func):
+        """Decorator to set a queue if not loaded"""
+        def wrapper(self):
+            utils.setup_output_dir(config['STORAGE']['TEXT'])
+            utils.setup_output_dir(config['STORAGE']['JSON'])
+            # utils.setup_output_dir(config['STORAGE']['GRAPH'])
+            utils.setup_output_dir(config['STORAGE']['REPORT'])
+            return func(self)
+        return wrapper
+
     def _queue_decorator(func):
         """Decorator to set a queue if not loaded"""
         def wrapper(self):
@@ -194,6 +204,7 @@ class FullAnalyzer(QueueingModel):
         return wrapper
 
     # @timeit
+    @_setup_output_dir
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
@@ -211,7 +222,7 @@ class FullAnalyzer(QueueingModel):
     @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
-        # TODO: Implement sorting, renaming, camouflaging (0/3)
+        # TODO Implement sorting, renaming, camouflaging (0/3)
         try:
             visual = visualizing.DataframeFactory()
             visual.classify_json_data_in_categories(visual.categories)
@@ -270,7 +281,7 @@ class FullAnalyzer(QueueingModel):
         dir_path = config['STORAGE']['REPORT']
         utils.setup_output_dir(dir_path)
         dest_info = {
-            'filename': 'paycheck_timechart.json',
+            'filename': config['FILENAME']['REPORT'],
             'dir_path': dir_path,
             'file_path': None
         }
@@ -307,5 +318,5 @@ class FullAnalyzer(QueueingModel):
         # TODO include filenames and each processed status in the msg
         template = console.get_template('end_proc.txt', self.speak_color)
         print(template.substitute({
-            'message': 'Check data/output/graphs_and_charts for exported image!'
+            'message': 'Check data/output/json/paycheck_timechart.json for preprocessed data!'
         }))
