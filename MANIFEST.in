@@ -1,0 +1,5 @@
+exclude main.py
+graft core_primely/
+graft tools/
+prune tests/
+global-exclude *.pyc, *.pdf, *.txt, *.json
