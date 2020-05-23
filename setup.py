@@ -24,11 +24,11 @@ setup(
     # package_dir={'': 'primely'},
     packages=find_packages(),
     # packages=[
-    #     'primely.controller',
-    #     'primely.models',
-    #     'primely.templates',
-    #     'primely.views',
-    #     'tests',
+    #     'core_primely.controller',
+    #     'core_primely.models',
+    #     'core_primely.templates',
+    #     'core_primely.views',
+    #     'tools'
     # ],
     test_suite='tests'
 )
