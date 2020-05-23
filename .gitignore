@@ -18,3 +18,5 @@ aws/*
 tmp/
 dist/
 escape/
+build/
+venv/
