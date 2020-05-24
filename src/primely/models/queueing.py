@@ -1,13 +1,14 @@
 import os
 import pathlib
 
-from primely.views import utils
+# from primely.views import utils
 
 PDF_DIR_PATH = 'data/input'
 
 
-def extract_filenames(self, all_files=[]):
+def extract_filenames(all_files=[]):
     """Extract filename without suffix"""
+    print('listdir:', os.listdir(PDF_DIR_PATH))
 
     for item in os.listdir(PDF_DIR_PATH):
         filename, _ = os.path.splitext(item)
@@ -33,10 +34,11 @@ def extract_filenames(self, all_files=[]):
 
 
 if __name__ == "__main__":
-    inputQueue = InputQueue()
+    # inputQueue = InputQueue()
     # inputQueue.load_pdf_filenames()
     # inputQueue.extract_filenames()
     # print('pdf_files:', inputQueue.pdf_files)
     # print('all_files:', inputQueue.all_files)
 
-    print(inputQueue.extract_filenames())
+    # print(inputQueue.extract_filenames())
+    print(extract_filenames())

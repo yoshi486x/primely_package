@@ -8,12 +8,9 @@ import multiprocessing
 import sys
 import time
 
-try:
-    from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-    from primely.views import console, utils
-except:
-    from primelyr.primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-    from primelyr.primely.views import console, utils
+from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
+from primely.views import console, utils
+
 
 # create logger with '__name__'
 logger = logging.getLogger(__name__)
@@ -30,8 +27,8 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
-config = configparser.ConfigParser()
-config.read('config.ini')
+# config = configparser.ConfigParser()
+# config.read('config.ini')
 
 
 def timeit(method):
@@ -57,10 +54,12 @@ class QueueingModel(object):
     def create_input_queue(self):
         """Create queue of processing data while extracting filenames"""
 
+        print('Here I am')
         try:
-            # TODO organize InputQueue func
-            input_queue = queueing.InputQueue()
-            input_queue.extract_filenames()
+            # input_queue = queueing.InputQueue()
+            # self.filenames = input_queue.extract_filenames()
+            self.filenames = queueing.extract_filenames()
+            print('filenames:', self.filenames)
             msg = 'Queue is set'
         except:
             self.status = 'error'
@@ -78,8 +77,6 @@ class QueueingModel(object):
             })
         finally:
             pass
-
-        self.filenames = input_queue.get_filename_list()
 
 
 class ConverterModel(object):
@@ -145,7 +142,8 @@ class ConverterModel(object):
     # @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
-        dir_path = config['STORAGE']['JSON']
+        # dir_path = config['STORAGE']['JSON']
+        dir_path = 'data/tmp/json'
         utils.setup_output_dir(dir_path)
         dest_info = {
             'filename': self.filename,
@@ -171,7 +169,6 @@ class Dispatcher(object):
         coverter.convert_text_into_dict()
         coverter.convert_dict_into_json()
 
-# class FullAnalyzer(QueueingModel, ConverterModel):
 class FullAnalyzer(QueueingModel):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
@@ -192,10 +189,12 @@ class FullAnalyzer(QueueingModel):
     def _setup_output_dir(func):
         """Decorator to set a queue if not loaded"""
         def wrapper(self):
-            utils.setup_output_dir(config['STORAGE']['TEXT'])
-            utils.setup_output_dir(config['STORAGE']['JSON'])
-            # utils.setup_output_dir(config['STORAGE']['GRAPH'])
-            utils.setup_output_dir(config['STORAGE']['REPORT'])
+            # utils.setup_output_dir(config['STORAGE']['TEXT'])
+            # utils.setup_output_dir(config['STORAGE']['JSON'])
+            # utils.setup_output_dir(config['STORAGE']['REPORT'])
+            utils.setup_output_dir('data/tmp/txt')
+            utils.setup_output_dir('data/tmp/json')
+            utils.setup_output_dir('data/output/json')
             return func(self)
         return wrapper
 
@@ -208,20 +207,20 @@ class FullAnalyzer(QueueingModel):
         return wrapper
 
     # @timeit
-    @_setup_output_dir
+    # @_setup_output_dir
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
 
         # Multiprocess
-        with multiprocessing.Pool(8) as p:
-            r = p.map(Dispatcher.fully_convert, self.filenames)
-            logging.debug('executed')
-            logging.debug(r)
+        # with multiprocessing.Pool(8) as p:
+        #     r = p.map(Dispatcher.fully_convert, self.filenames)
+        #     logging.debug('executed')
+        #     logging.debug(r)
 
         # Single-process
-        # for filename in self.filenames:
-        #     Dispatcher.fully_convert(filename)
+        for filename in self.filenames:
+            Dispatcher.fully_convert(filename)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):
@@ -282,10 +281,12 @@ class FullAnalyzer(QueueingModel):
     def export_in_jsonfile(self, response):
         """Export api response of this whole package in a json file"""
 
-        dir_path = config['STORAGE']['REPORT']
+        # dir_path = config['STORAGE']['REPORT']
+        dir_path = 'data/output/json'
         utils.setup_output_dir(dir_path)
         dest_info = {
-            'filename': config['FILENAME']['REPORT'],
+            # 'filename': config['FILENAME']['REPORT'],
+            'filename': 'paycheck_timechart.json',
             'dir_path': dir_path,
             'file_path': None
         }
@@ -295,7 +296,8 @@ class FullAnalyzer(QueueingModel):
     def export_income_timeline(self):
         # Plot graph and save in a image -------------------------------
         try:
-            if config['APP'].getboolean('GRAPH_OUTPUT'):
+            # if config['APP'].getboolean('GRAPH_OUTPUT'):
+            if False:
                 plotter = visualizing.PlotterModel(self.dataframe)
                 plotter.save_graph_to_image()
         except:
@@ -324,3 +326,23 @@ class FullAnalyzer(QueueingModel):
         print(template.substitute({
             'message': 'Check data/output/json/paycheck_timechart.json for preprocessed data!'
         }))
+
+if __name__ == "__main__":
+
+    help(queueing)
+    # print('filenmaes:', queueing.extract_filenames())
+    # full_analyzer = FullAnalyzer()
+
+    # # top 
+    # full_analyzer.starting_msg()
+    # full_analyzer.create_input_queue()
+    
+    # # middle
+    # full_analyzer.process_all_input_data()
+    # full_analyzer.create_dataframe_in_time_series()
+    # paycheck_series = full_analyzer.get_packaged_paycheck_series()
+    
+    # # bottom
+    # full_analyzer.export_in_jsonfile(paycheck_series)
+    # full_analyzer.export_income_timeline()
+    # full_analyzer.ending_msg()

@@ -16,7 +16,7 @@ def paycheck_analysis():
         
         # bottom
         full_analyzer.export_in_jsonfile(paycheck_series)
-        full_analyzer.export_income_timeline()
+        # full_analyzer.export_income_timeline()
         full_analyzer.ending_msg()
     except:
         return False
