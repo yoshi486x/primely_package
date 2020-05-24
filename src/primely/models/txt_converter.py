@@ -1,22 +1,13 @@
 import collections
-import configparser
 import datetime
 import os
 import pathlib
 import re
 
-import pprint
-pp = pprint.PrettyPrinter(indent=2)
+from primely.views import utils
 
-try:
-    from primely.views import utils
-except:
-    from primelyr.primely.views import utils
 
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-TEXT_DIR_PATH = config['STORAGE']['TEXT']
+TEXT_DIR_PATH = 'data/tmp/txt'
 
 #TODO add irregular parameter table for below two paras
 PAID_INCOME = 'total_earnings' # 差引支給額
