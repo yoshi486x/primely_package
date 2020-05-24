@@ -27,8 +27,13 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
-# config = configparser.ConfigParser()
-# config.read('config.ini')
+PDF_STORAGE     = 'data/input'
+TEXT_STORAGE    = 'data/tmp/txt'
+JSON_STORAGE    = 'data/tmp/json'
+GRAPH_STORAGE   = 'data/output/graphs_and_charts'
+REPORT_STORAGE  = 'data/output/json'
+GRAPH_FILENAME  = 'income_timechart.png'
+REPORT_FILENAME = 'paycheck_timechart.json'
 
 
 def timeit(method):
@@ -142,9 +147,9 @@ class ConverterModel(object):
     # @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
-        # dir_path = config['STORAGE']['JSON']
-        dir_path = 'data/tmp/json'
-        utils.setup_output_dir(dir_path)
+
+        dir_path = JSON_STORAGE
+        utils.setup_output_dir(dir_path) #--------------------------
         dest_info = {
             'filename': self.filename,
             'dir_path': dir_path,
@@ -188,18 +193,17 @@ class FullAnalyzer(QueueingModel):
 
     def _setup_output_dir(func):
         """Decorator to set a queue if not loaded"""
+
         def wrapper(self):
-            # utils.setup_output_dir(config['STORAGE']['TEXT'])
-            # utils.setup_output_dir(config['STORAGE']['JSON'])
-            # utils.setup_output_dir(config['STORAGE']['REPORT'])
-            utils.setup_output_dir('data/tmp/txt')
-            utils.setup_output_dir('data/tmp/json')
-            utils.setup_output_dir('data/output/json')
+            utils.setup_output_dir(TEXT_STORAGE)
+            utils.setup_output_dir(JSON_STORAGE)
+            utils.setup_output_dir(REPORT_STORAGE)
             return func(self)
         return wrapper
 
     def _queue_decorator(func):
         """Decorator to set a queue if not loaded"""
+
         def wrapper(self):
             if not self.filenames:
                 self.create_input_queue()
@@ -281,12 +285,11 @@ class FullAnalyzer(QueueingModel):
     def export_in_jsonfile(self, response):
         """Export api response of this whole package in a json file"""
 
-        # dir_path = config['STORAGE']['REPORT']
-        dir_path = 'data/output/json'
+
+        dir_path = REPORT_STORAGE
         utils.setup_output_dir(dir_path)
         dest_info = {
-            # 'filename': config['FILENAME']['REPORT'],
-            'filename': 'paycheck_timechart.json',
+            'filename': REPORT_FILENAME,
             'dir_path': dir_path,
             'file_path': None
         }
