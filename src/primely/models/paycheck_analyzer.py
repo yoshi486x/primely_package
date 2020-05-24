@@ -60,7 +60,7 @@ class QueueingModel(object):
         """Create queue of processing data while extracting filenames"""
 
         try:
-            self.filenames = queueing.extract_filenames()
+            self.filenames = queueing.extract_filenames(PDF_STORAGE)
             msg = 'Queue is set'
         except:
             self.status = 'error'
@@ -95,6 +95,7 @@ class ConverterModel(object):
     # @timeit
     def convert_pdf_into_text(self):
         """Utilize pdf_converter module to convert a pdf file to a text file"""
+
         pdf_converter.convert_pdf_to_txt(self.filename, 
             PDF_STORAGE, TEXT_STORAGE)
 
