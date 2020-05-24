@@ -59,12 +59,8 @@ class QueueingModel(object):
     def create_input_queue(self):
         """Create queue of processing data while extracting filenames"""
 
-        print('Here I am')
         try:
-            # input_queue = queueing.InputQueue()
-            # self.filenames = input_queue.extract_filenames()
             self.filenames = queueing.extract_filenames()
-            print('filenames:', self.filenames)
             msg = 'Queue is set'
         except:
             self.status = 'error'
@@ -99,11 +95,8 @@ class ConverterModel(object):
     # @timeit
     def convert_pdf_into_text(self):
         """Utilize pdf_converter module to convert a pdf file to a text file"""
-        
-        self.pdf_converter = pdf_converter.PdfReader(self.filename)
-        input_file_path = self.pdf_converter.get_pdf_dir()
-        output_file_path = self.pdf_converter.get_txt_dir()
-        self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
+        pdf_converter.convert_pdf_to_txt(self.filename, 
+            PDF_STORAGE, TEXT_STORAGE)
 
     # @timeit
     def convert_text_into_dict(self):
@@ -211,20 +204,20 @@ class FullAnalyzer(QueueingModel):
         return wrapper
 
     # @timeit
-    # @_setup_output_dir
+    @_setup_output_dir
     @_queue_decorator
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
 
-        # Multiprocess
-        # with multiprocessing.Pool(8) as p:
-        #     r = p.map(Dispatcher.fully_convert, self.filenames)
-        #     logging.debug('executed')
-        #     logging.debug(r)
+        """ Multiprocess"""
+        with multiprocessing.Pool(8) as p:
+            r = p.map(Dispatcher.fully_convert, self.filenames)
+            logging.debug('executed')
+            logging.debug(r)
 
-        # Single-process
-        for filename in self.filenames:
-            Dispatcher.fully_convert(filename)
+        """ Single-process"""
+        # for filename in self.filenames:
+        #     Dispatcher.fully_convert(filename)
 
     @_queue_decorator
     def create_dataframe_in_time_series(self):
