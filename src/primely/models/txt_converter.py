@@ -240,8 +240,27 @@ class PartitionerModel(DataModel):
         named_dict = {name: [self.dict_data]}
         return named_dict
 
-def main():
-    pass
+
+class PartitioningDispatcher(PartitionerModel):
+
+    def __init__(self, filename):
+        super().__init__()
+        self.walkthrough_conversion(filename)
+
+    def walkthrough_conversion(self, filename):
+        self.load_data(filename)
+        self.value_format_digit()
+        self.define_partitions()
+        self.partition_data()
+        self.self_correlate_block1()
+        self.self_correlate_block2()
+        self.value_format_date()
+        self.value_format_deductions()
+        self.value_format_remove_dot_in_keys()
+
+    def get_response(self):
+        return self.dict_data
+
 
 if __name__ == "__main__":
-    main()
+    pass

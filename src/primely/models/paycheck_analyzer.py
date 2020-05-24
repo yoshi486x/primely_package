@@ -75,16 +75,17 @@ class ConverterModel(object):
         """Transform txt data to dict format"""
 
         try:
-            self.txt_converter = txt_converter.PartitionerModel()
-            self.txt_converter.load_data(self.filename)
-            self.txt_converter.value_format_digit()
-            self.txt_converter.define_partitions()
-            self.txt_converter.partition_data()
-            self.txt_converter.self_correlate_block1()
-            self.txt_converter.self_correlate_block2()
-            self.txt_converter.value_format_date()
-            self.txt_converter.value_format_deductions()
-            self.txt_converter.value_format_remove_dot_in_keys()
+            converter = txt_converter.PartitioningDispatcher(self.filename)
+            # self.txt_converter = txt_converter.PartitionerModel()
+            # self.txt_converter.load_data(self.filename)
+            # self.txt_converter.value_format_digit()
+            # self.txt_converter.define_partitions()
+            # self.txt_converter.partition_data()
+            # self.txt_converter.self_correlate_block1()
+            # self.txt_converter.self_correlate_block2()
+            # self.txt_converter.value_format_date()
+            # self.txt_converter.value_format_deductions()
+            # self.txt_converter.value_format_remove_dot_in_keys()
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
@@ -102,8 +103,8 @@ class ConverterModel(object):
         finally:
             pass
         
-        # self.response = self.txt_converter.add_table_name()
-        self.response = self.txt_converter.dict_data
+        # self.response = self.txt_converter.dict_data
+        self.response = converter.get_response() 
         logger.debug({
             'filename': self.filename,
             'data': self.response
