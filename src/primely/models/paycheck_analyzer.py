@@ -51,35 +51,6 @@ def timeit(method):
     return timed
 
 
-class QueueingModel(object):
-
-    def __init__(self, filenames=None):
-        self.filenames = filenames
-
-    def create_input_queue(self):
-        """Create queue of processing data while extracting filenames"""
-
-        try:
-            self.filenames = queueing.extract_filenames(PDF_STORAGE)
-            msg = 'Queue is set'
-        except:
-            self.status = 'error'
-            msg = 'Could not set queue'
-            logger.critical({
-                'status': self.status,
-                'msg': msg
-            })
-        else:
-            self.status = 'success'
-            msg = 'Queue is set'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-        finally:
-            pass
-
-
 class ConverterModel(object):
     """Contains functions that process a paycheck object.
     Steps:
@@ -168,7 +139,7 @@ class Dispatcher(object):
         coverter.convert_text_into_dict()
         coverter.convert_dict_into_json()
 
-class FullAnalyzer(QueueingModel):
+class FullAnalyzer(object):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
@@ -200,7 +171,8 @@ class FullAnalyzer(QueueingModel):
 
         def wrapper(self):
             if not self.filenames:
-                self.create_input_queue()
+                self.filenames = queueing.extract_filenames(PDF_STORAGE)
+                print('Queue is set')
             return func(self)
         return wrapper
 
@@ -220,7 +192,6 @@ class FullAnalyzer(QueueingModel):
         # for filename in self.filenames:
         #     Dispatcher.fully_convert(filename)
 
-    @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
         # TODO Implement sorting, renaming, camouflaging (0/3)
@@ -249,7 +220,6 @@ class FullAnalyzer(QueueingModel):
         finally:
             pass
 
-    @_queue_decorator
     def get_packaged_paycheck_series(self):
         """
         1. Package 3 categories of dataframes in the hash table (self.dataframe)
@@ -290,33 +260,7 @@ class FullAnalyzer(QueueingModel):
         recording_model = recording.RecordingModel(**dest_info)
         recording_model.record_data_in_json(response)
 
-    def export_income_timeline(self):
-        # Plot graph and save in a image -------------------------------
-        try:
-            # if config['APP'].getboolean('GRAPH_OUTPUT'):
-            if False:
-                plotter = visualizing.PlotterModel(self.dataframe)
-                plotter.save_graph_to_image()
-        except:
-            self.status = 'error'
-            msg = 'Plotting failed'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-            print('Unexpected error:', sys.exc_info()[0])
-            raise
-        else:
-            self.status = 'success'
-            msg = 'Plotting complete'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-        finally:
-            pass
 
-    @_queue_decorator
     def ending_msg(self):
         # TODO include filenames and each processed status in the msg
         template = console.get_template('end_proc.txt', self.speak_color)
@@ -325,21 +269,4 @@ class FullAnalyzer(QueueingModel):
         }))
 
 if __name__ == "__main__":
-
-    help(queueing)
-    # print('filenmaes:', queueing.extract_filenames())
-    # full_analyzer = FullAnalyzer()
-
-    # # top 
-    # full_analyzer.starting_msg()
-    # full_analyzer.create_input_queue()
-    
-    # # middle
-    # full_analyzer.process_all_input_data()
-    # full_analyzer.create_dataframe_in_time_series()
-    # paycheck_series = full_analyzer.get_packaged_paycheck_series()
-    
-    # # bottom
-    # full_analyzer.export_in_jsonfile(paycheck_series)
-    # full_analyzer.export_income_timeline()
-    # full_analyzer.ending_msg()
+    pass
