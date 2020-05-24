@@ -1,5 +1,4 @@
 import collections
-import configparser
 import json
 import numpy as np
 import os
@@ -7,18 +6,11 @@ import pandas as pd
 import pathlib
 
 # TODO uncomment out the utils and rollback line 29 and 30
-try:
-    from primely.views import utils
-except:
-    from primelyr.primely.views import utils
+from primely.views import utils
 
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-JSON_DIR_PATH = config['STORAGE']['JSON']
-GRAPHS_DIR_PATH = config['STORAGE']['GRAPH']
-INCOME_GRAPH_NAME = config['FILENAME']['GRAPH']
-
+JSON_DIR_PATH = 'data/tmp/json'
+GRAPHS_DIR_PATH = 'data/output/graphs_and_charts'
+INCOME_GRAPH_NAME = 'income_timechart.png'
 PAID_DATE = 'paid_date'
 
 class JsonLoaderModel(object):
@@ -35,10 +27,9 @@ class JsonLoaderModel(object):
 
 class CreateTimechartModel(object):
     def __init__(self, base_dir=None, filenames=None):
-        if not base_dir:
-            base_dir = utils.get_base_dir_path(__file__)
-            # base_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-        self.base_dir = base_dir
+        # if not base_dir:
+        #     base_dir = utils.get_base_dir_path(__file__)
+        # self.base_dir = base_dir
         if not filenames:
             filenames = self._get_json_filenames()
         self.filenames = filenames
@@ -51,9 +42,10 @@ class CreateTimechartModel(object):
         :rtype filenames: list
         """
 
-        json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
+        # json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
         if len(filenames) == 0:
-            for item in os.listdir(json_full_dir_path):
+            # for item in os.listdir(json_full_dir_path):
+            for item in os.listdir(JSON_DIR_PATH):
                 filenames.append(item)
         return filenames
 

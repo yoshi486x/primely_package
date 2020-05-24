@@ -2,9 +2,7 @@ import configparser
 import os
 import pathlib
 
-config = configparser.ConfigParser()
-config.read('config.ini')
-OUTPUT_PATH = config['STORAGE']['TEXT']
+OUTPUT_PATH = 'data/tmp/txt'
 
 def get_base_dir_path(file_path):
     """

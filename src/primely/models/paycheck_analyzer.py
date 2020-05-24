@@ -8,12 +8,9 @@ import multiprocessing
 import sys
 import time
 
-try:
-    from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-    from primely.views import console, utils
-except:
-    from primelyr.primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
-    from primelyr.primely.views import console, utils
+from primely.models import pdf_converter, queueing, recording, txt_converter, visualizing
+from primely.views import console, utils
+
 
 # create logger with '__name__'
 logger = logging.getLogger(__name__)
@@ -30,8 +27,13 @@ logger.addHandler(ch)
 # don't allow passing events to higher level loggers
 logger.propagate = False
 
-config = configparser.ConfigParser()
-config.read('config.ini')
+PDF_STORAGE     = 'data/input'
+TEXT_STORAGE    = 'data/tmp/txt'
+JSON_STORAGE    = 'data/tmp/json'
+GRAPH_STORAGE   = 'data/output/graphs_and_charts'
+REPORT_STORAGE  = 'data/output/json'
+GRAPH_FILENAME  = 'income_timechart.png'
+REPORT_FILENAME = 'paycheck_timechart.json'
 
 
 def timeit(method):
@@ -49,39 +51,6 @@ def timeit(method):
     return timed
 
 
-class QueueingModel(object):
-
-    def __init__(self, filenames=None):
-        self.filenames = filenames
-
-    def create_input_queue(self):
-        """Create queue of processing data while extracting filenames"""
-
-        try:
-            # TODO organize InputQueue func
-            input_queue = queueing.InputQueue()
-            input_queue.extract_filenames()
-            msg = 'Queue is set'
-        except:
-            self.status = 'error'
-            msg = 'Could not set queue'
-            logger.critical({
-                'status': self.status,
-                'msg': msg
-            })
-        else:
-            self.status = 'success'
-            msg = 'Queue is set'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-        finally:
-            pass
-
-        self.filenames = input_queue.get_filename_list()
-
-
 class ConverterModel(object):
     """Contains functions that process a paycheck object.
     Steps:
@@ -97,27 +66,16 @@ class ConverterModel(object):
     # @timeit
     def convert_pdf_into_text(self):
         """Utilize pdf_converter module to convert a pdf file to a text file"""
-        
-        self.pdf_converter = pdf_converter.PdfReader(self.filename)
-        input_file_path = self.pdf_converter.get_pdf_dir()
-        output_file_path = self.pdf_converter.get_txt_dir()
-        self.pdf_converter.convert_pdf_to_txt(input_file_path, output_file_path)
+
+        pdf_converter.convert_pdf_to_txt(self.filename, 
+            PDF_STORAGE, TEXT_STORAGE)
 
     # @timeit
     def convert_text_into_dict(self):
         """Transform txt data to dict format"""
 
         try:
-            self.txt_converter = txt_converter.PartitionerModel()
-            self.txt_converter.load_data(self.filename)
-            self.txt_converter.value_format_digit()
-            self.txt_converter.define_partitions()
-            self.txt_converter.partition_data()
-            self.txt_converter.self_correlate_block1()
-            self.txt_converter.self_correlate_block2()
-            self.txt_converter.value_format_date()
-            self.txt_converter.value_format_deductions()
-            self.txt_converter.value_format_remove_dot_in_keys()
+            converter = txt_converter.PartitioningDispatcher(self.filename, TEXT_STORAGE)
         except:
             self.status = 'error'
             msg = 'Could not complete text transformation process'
@@ -135,8 +93,7 @@ class ConverterModel(object):
         finally:
             pass
         
-        # self.response = self.txt_converter.add_table_name()
-        self.response = self.txt_converter.dict_data
+        self.response = converter.get_response() 
         logger.debug({
             'filename': self.filename,
             'data': self.response
@@ -145,8 +102,9 @@ class ConverterModel(object):
     # @timeit
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
-        dir_path = config['STORAGE']['JSON']
-        utils.setup_output_dir(dir_path)
+
+        dir_path = JSON_STORAGE
+        utils.setup_output_dir(dir_path) #--------------------------
         dest_info = {
             'filename': self.filename,
             'dir_path': dir_path,
@@ -171,8 +129,7 @@ class Dispatcher(object):
         coverter.convert_text_into_dict()
         coverter.convert_dict_into_json()
 
-# class FullAnalyzer(QueueingModel, ConverterModel):
-class FullAnalyzer(QueueingModel):
+class FullAnalyzer(object):
     """This is the main process of Primely which can handle multiple 
     pdf files to iterate through all the functionalities that the 
     Primely package ratains."""
@@ -191,19 +148,21 @@ class FullAnalyzer(QueueingModel):
 
     def _setup_output_dir(func):
         """Decorator to set a queue if not loaded"""
+
         def wrapper(self):
-            utils.setup_output_dir(config['STORAGE']['TEXT'])
-            utils.setup_output_dir(config['STORAGE']['JSON'])
-            # utils.setup_output_dir(config['STORAGE']['GRAPH'])
-            utils.setup_output_dir(config['STORAGE']['REPORT'])
+            utils.setup_output_dir(TEXT_STORAGE)
+            utils.setup_output_dir(JSON_STORAGE)
+            utils.setup_output_dir(REPORT_STORAGE)
             return func(self)
         return wrapper
 
     def _queue_decorator(func):
         """Decorator to set a queue if not loaded"""
+
         def wrapper(self):
             if not self.filenames:
-                self.create_input_queue()
+                self.filenames = queueing.extract_filenames(PDF_STORAGE)
+                print('Queue is set')
             return func(self)
         return wrapper
 
@@ -213,17 +172,16 @@ class FullAnalyzer(QueueingModel):
     def process_all_input_data(self):
         """Use AnalyzerModel to process all PDF data"""
 
-        # Multiprocess
+        """ Multiprocess"""
         with multiprocessing.Pool(8) as p:
             r = p.map(Dispatcher.fully_convert, self.filenames)
             logging.debug('executed')
             logging.debug(r)
 
-        # Single-process
+        """ Single-process"""
         # for filename in self.filenames:
         #     Dispatcher.fully_convert(filename)
 
-    @_queue_decorator
     def create_dataframe_in_time_series(self):
         """Visualize data from json file and export a graph image """
         # TODO Implement sorting, renaming, camouflaging (0/3)
@@ -252,7 +210,6 @@ class FullAnalyzer(QueueingModel):
         finally:
             pass
 
-    @_queue_decorator
     def get_packaged_paycheck_series(self):
         """
         1. Package 3 categories of dataframes in the hash table (self.dataframe)
@@ -282,45 +239,24 @@ class FullAnalyzer(QueueingModel):
     def export_in_jsonfile(self, response):
         """Export api response of this whole package in a json file"""
 
-        dir_path = config['STORAGE']['REPORT']
+
+        dir_path = REPORT_STORAGE
         utils.setup_output_dir(dir_path)
         dest_info = {
-            'filename': config['FILENAME']['REPORT'],
+            'filename': REPORT_FILENAME,
             'dir_path': dir_path,
             'file_path': None
         }
         recording_model = recording.RecordingModel(**dest_info)
         recording_model.record_data_in_json(response)
 
-    def export_income_timeline(self):
-        # Plot graph and save in a image -------------------------------
-        try:
-            if config['APP'].getboolean('GRAPH_OUTPUT'):
-                plotter = visualizing.PlotterModel(self.dataframe)
-                plotter.save_graph_to_image()
-        except:
-            self.status = 'error'
-            msg = 'Plotting failed'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-            print('Unexpected error:', sys.exc_info()[0])
-            raise
-        else:
-            self.status = 'success'
-            msg = 'Plotting complete'
-            logger.info({
-                'status': self.status,
-                'msg': msg
-            })
-        finally:
-            pass
 
-    @_queue_decorator
     def ending_msg(self):
         # TODO include filenames and each processed status in the msg
         template = console.get_template('end_proc.txt', self.speak_color)
         print(template.substitute({
             'message': 'Check data/output/json/paycheck_timechart.json for preprocessed data!'
         }))
+
+if __name__ == "__main__":
+    pass

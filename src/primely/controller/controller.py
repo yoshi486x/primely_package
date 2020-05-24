@@ -1,7 +1,4 @@
-try:
-    from primely.models import paycheck_analyzer
-except:
-    from primelyr.primely.models import paycheck_analyzer
+from primely.models import paycheck_analyzer
 
 def paycheck_analysis():
     """Handles every process of paycheck-graph package."""
@@ -10,7 +7,6 @@ def paycheck_analysis():
     try:
         # top 
         full_analyzer.starting_msg()
-        full_analyzer.create_input_queue()
         
         # middle
         full_analyzer.process_all_input_data()
@@ -19,7 +15,6 @@ def paycheck_analysis():
         
         # bottom
         full_analyzer.export_in_jsonfile(paycheck_series)
-        full_analyzer.export_income_timeline()
         full_analyzer.ending_msg()
     except:
         return False

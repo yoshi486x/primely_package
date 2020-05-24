@@ -1,26 +1,16 @@
+"""
+#TODO add irregular parameter table for below two paras
+PAID_INCOME = 'total_earnings' # 差引支給額
+PAID_DATE = 'paid_date' # 支払支給日
+"""
 import collections
-import configparser
 import datetime
 import os
 import pathlib
 import re
 
-import pprint
-pp = pprint.PrettyPrinter(indent=2)
+from primely.views import utils
 
-try:
-    from primely.views import utils
-except:
-    from primelyr.primely.views import utils
-
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-TEXT_DIR_PATH = config['STORAGE']['TEXT']
-
-#TODO add irregular parameter table for below two paras
-PAID_INCOME = 'total_earnings' # 差引支給額
-PAID_DATE = 'paid_date' # 支払支給日
 
 
 class DataModel(object):
@@ -40,12 +30,12 @@ class PartitionerModel(DataModel):
         self.ankerIndexes = [] * block_count
         self.block1, self.block2, self.block3 = list, list, list
 
-    def load_data(self, filename):
+    def load_data(self, filename, txt_dir):
         """Load data"""
 
         suffix = '.txt'
         base_dir = utils.get_base_dir_path(__file__)
-        text_file_path = pathlib.Path(base_dir, TEXT_DIR_PATH, filename).with_suffix(suffix)
+        text_file_path = pathlib.Path(base_dir, txt_dir, filename).with_suffix(suffix)
 
         with open(text_file_path, 'r') as text_file:
             list_data = text_file.read().splitlines()
@@ -249,8 +239,27 @@ class PartitionerModel(DataModel):
         named_dict = {name: [self.dict_data]}
         return named_dict
 
-def main():
-    pass
+
+class PartitioningDispatcher(PartitionerModel):
+
+    def __init__(self, filename, txt_dir):
+        super().__init__()
+        self.walkthrough_conversion(filename, txt_dir)
+
+    def walkthrough_conversion(self, filename, txt_dir):
+        self.load_data(filename, txt_dir)
+        self.value_format_digit()
+        self.define_partitions()
+        self.partition_data()
+        self.self_correlate_block1()
+        self.self_correlate_block2()
+        self.value_format_date()
+        self.value_format_deductions()
+        self.value_format_remove_dot_in_keys()
+
+    def get_response(self):
+        return self.dict_data
+
 
 if __name__ == "__main__":
-    main()
+    pass
