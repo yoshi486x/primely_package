@@ -9,8 +9,6 @@ import pathlib
 from primely.views import utils
 
 JSON_DIR_PATH = 'data/tmp/json'
-GRAPHS_DIR_PATH = 'data/output/graphs_and_charts'
-INCOME_GRAPH_NAME = 'income_timechart.png'
 PAID_DATE = 'paid_date'
 
 class JsonLoaderModel(object):
@@ -169,21 +167,6 @@ class OrganizerModel(object):
         return self.response
 
 
-class PlotterModel(object):
-
-    def __init__(self, dataframe=None):
-        self.dataframe = dataframe
-
-    def save_graph_to_image(self):
-        file_path = pathlib.Path(GRAPHS_DIR_PATH, INCOME_GRAPH_NAME)
-        ax = self.dataframe.plot(
-            figsize=(15, 10), kind='bar', stacked=True, grid=True, sharey=False,
-            title='Income breakdown **Sample data was used for this graph**',
-            )
-        ax.set_ylabel('amount of income [yen]')
-        fig = ax.get_figure()
-        fig.savefig(file_path)
-
 def main():
     categories = ['incomes', 'deductions', 'attendances']
     visual = DataframeFactory()
@@ -200,9 +183,6 @@ def main():
     organizer.trigger_update_event()
     organizer.export_response_in_json()
 
-    # df = visual.dataframe
-    # plotter = PlotterModel(df)
-    # plotter.save_graph_to_image()
 
 if __name__ == "__main__":
     main()
