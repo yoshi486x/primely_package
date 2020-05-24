@@ -1,3 +1,8 @@
+"""
+#TODO add irregular parameter table for below two paras
+PAID_INCOME = 'total_earnings' # 差引支給額
+PAID_DATE = 'paid_date' # 支払支給日
+"""
 import collections
 import datetime
 import os
@@ -6,12 +11,6 @@ import re
 
 from primely.views import utils
 
-
-TEXT_DIR_PATH = 'data/tmp/txt'
-
-#TODO add irregular parameter table for below two paras
-PAID_INCOME = 'total_earnings' # 差引支給額
-PAID_DATE = 'paid_date' # 支払支給日
 
 
 class DataModel(object):
@@ -31,12 +30,12 @@ class PartitionerModel(DataModel):
         self.ankerIndexes = [] * block_count
         self.block1, self.block2, self.block3 = list, list, list
 
-    def load_data(self, filename):
+    def load_data(self, filename, txt_dir):
         """Load data"""
 
         suffix = '.txt'
         base_dir = utils.get_base_dir_path(__file__)
-        text_file_path = pathlib.Path(base_dir, TEXT_DIR_PATH, filename).with_suffix(suffix)
+        text_file_path = pathlib.Path(base_dir, txt_dir, filename).with_suffix(suffix)
 
         with open(text_file_path, 'r') as text_file:
             list_data = text_file.read().splitlines()
@@ -243,12 +242,12 @@ class PartitionerModel(DataModel):
 
 class PartitioningDispatcher(PartitionerModel):
 
-    def __init__(self, filename):
+    def __init__(self, filename, txt_dir):
         super().__init__()
-        self.walkthrough_conversion(filename)
+        self.walkthrough_conversion(filename, txt_dir)
 
-    def walkthrough_conversion(self, filename):
-        self.load_data(filename)
+    def walkthrough_conversion(self, filename, txt_dir):
+        self.load_data(filename, txt_dir)
         self.value_format_digit()
         self.define_partitions()
         self.partition_data()
