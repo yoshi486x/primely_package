@@ -12,7 +12,6 @@ import re
 from primely.views import utils
 
 
-
 class DataModel(object):
     """Base model of source data when while being extracted and formatted"""
     def __init__(self, list_data=None, filenames=list):
