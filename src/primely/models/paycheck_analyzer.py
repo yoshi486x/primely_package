@@ -105,7 +105,7 @@ class ConverterModel(object):
 
         dest_info = {
             'filename': self.filename,
-            'dir_path': dir_path,
+            'dir_path': JSON_STORAGE,
             'file_path': None
         }
 
