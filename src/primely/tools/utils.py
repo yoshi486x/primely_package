@@ -7,6 +7,11 @@ REPORT_DIR_PATH = 'data/output/json'
 REPORT_FILENAME = 'paycheck_timechart.json'
 TMP_DIR_PATH = 'data/tmp'
 
+def create_data_dir():
+    dir_path = 'data/input'
+    os.makedirs(dir_path, exist_ok=True)
+    print(f'Directory `{dir_path}` created')
+
 def remove_report():
     file_path = pathlib.Path(REPORT_DIR_PATH, REPORT_FILENAME)
     print(file_path)
