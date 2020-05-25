@@ -5,8 +5,6 @@ import os
 import pandas as pd
 import pathlib
 
-# TODO uncomment out the utils and rollback line 29 and 30
-from primely.views import utils
 
 PAID_DATE = 'paid_date'
 
@@ -23,11 +21,8 @@ class JsonLoaderModel(object):
             return json.load(json_file)
 
 class CreateTimechartModel(object):
-    def __init__(self, json_dir, base_dir=None, filenames=None):
+    def __init__(self, json_dir, filenames=None):
         self.json_dir = json_dir
-        # if not base_dir:
-        #     base_dir = utils.get_base_dir_path(__file__)
-        # self.base_dir = base_dir
         if not filenames:
             filenames = self._get_json_filenames()
         self.filenames = filenames
