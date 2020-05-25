@@ -5,8 +5,8 @@ import os
 import pandas as pd
 import pathlib
 
-
 PAID_DATE = 'paid_date'
+
 
 class JsonLoaderModel(object):
     def __init__(self, filename, dir_path, dict_data=None):
