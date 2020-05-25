@@ -1,7 +1,4 @@
 """
-#TODO add irregular parameter table for below two paras
-PAID_INCOME = 'total_earnings' # 差引支給額
-PAID_DATE = 'paid_date' # 支払支給日
 """
 import collections
 import datetime
@@ -9,7 +6,9 @@ import os
 import pathlib
 import re
 
-from primely.views import utils
+#TODO add irregular parameter table for below two paras
+PAID_INCOME = 'total_earnings' # 差引支給額
+PAID_DATE = 'paid_date' # 支払支給日
 
 
 class DataModel(object):
@@ -32,9 +31,7 @@ class PartitionerModel(DataModel):
     def load_data(self, filename, txt_dir):
         """Load data"""
 
-        suffix = '.txt'
-        base_dir = utils.get_base_dir_path(__file__)
-        text_file_path = pathlib.Path(base_dir, txt_dir, filename).with_suffix(suffix)
+        text_file_path = pathlib.Path(txt_dir, filename).with_suffix('.txt')
 
         with open(text_file_path, 'r') as text_file:
             list_data = text_file.read().splitlines()
@@ -251,6 +248,7 @@ class PartitioningDispatcher(PartitionerModel):
         self.define_partitions()
         self.partition_data()
         self.self_correlate_block1()
+        # print('list_data2:', self.list_data)
         self.self_correlate_block2()
         self.value_format_date()
         self.value_format_deductions()
@@ -261,4 +259,10 @@ class PartitioningDispatcher(PartitionerModel):
 
 
 if __name__ == "__main__":
-    pass
+    
+    filename = 'K_20190125'
+    txt_dir =  'data/tmp/txt'
+
+    txt_path = pathlib.Path(os.getcwd(), txt_dir)
+    converter = PartitioningDispatcher(filename, txt_path)
+    # converter = PartitioningDispatcher(filename, '/Users/dev-yoshiki/Hobby/sleepy/src/data/tmp/txt')
