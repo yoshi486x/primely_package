@@ -234,7 +234,6 @@ class FullAnalyzer(object):
 
 
         dir_path = REPORT_STORAGE
-        utils.setup_output_dir(dir_path)
         dest_info = {
             'filename': REPORT_FILENAME,
             'dir_path': dir_path,
