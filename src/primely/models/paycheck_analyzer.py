@@ -103,21 +103,14 @@ class ConverterModel(object):
     def convert_dict_into_json(self):
         """Record dict_data to json files"""
 
-        dir_path = JSON_STORAGE
-        utils.setup_output_dir(dir_path) #--------------------------
         dest_info = {
             'filename': self.filename,
             'dir_path': dir_path,
             'file_path': None
         }
-        # print('dir_path:', dir_path)
-        file_path = None 
-        # recording_model = recording.RecordingModel(filename, file_path, dir_path)
+
         recording_model = recording.RecordingModel(**dest_info)
-        # recording_model = recording.RecordingModel(self.filename)
-        # output_path = recording_model.get_json_dir()
         recording_model.record_data_in_json(self.response)
-        # recording_model.record_dict_in_json(self.response, output_path)
 
 
 class Dispatcher(object):
