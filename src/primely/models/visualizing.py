@@ -8,7 +8,6 @@ import pathlib
 # TODO uncomment out the utils and rollback line 29 and 30
 from primely.views import utils
 
-JSON_DIR_PATH = 'data/tmp/json'
 PAID_DATE = 'paid_date'
 
 class JsonLoaderModel(object):
@@ -24,7 +23,8 @@ class JsonLoaderModel(object):
             return json.load(json_file)
 
 class CreateTimechartModel(object):
-    def __init__(self, base_dir=None, filenames=None):
+    def __init__(self, json_dir, base_dir=None, filenames=None):
+        self.json_dir = json_dir
         # if not base_dir:
         #     base_dir = utils.get_base_dir_path(__file__)
         # self.base_dir = base_dir
@@ -40,16 +40,15 @@ class CreateTimechartModel(object):
         :rtype filenames: list
         """
 
-        # json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
         if len(filenames) == 0:
-            # for item in os.listdir(json_full_dir_path):
-            for item in os.listdir(JSON_DIR_PATH):
+            for item in os.listdir(self.json_dir):
                 filenames.append(item)
         return filenames
 
 
 class CreateBaseTable(object):
-    def __init__(self, dataframe=None):
+    def __init__(self, json_dir, dataframe=None):
+        self.json_dir = json_dir
         self.dataframe = dataframe
 
     def create_base_table(self, category):
@@ -65,7 +64,7 @@ class CreateBaseTable(object):
             dates, keys, values, indexes = [], [], [], []
 
             # Get hash table from json
-            json_loader = JsonLoaderModel(filename, JSON_DIR_PATH)
+            json_loader = JsonLoaderModel(filename, self.json_dir)
             dict_data = json_loader.dict_data
 
             # Extract parameters by category type
@@ -92,10 +91,10 @@ class CreateBaseTable(object):
 
 class DataframeFactory(CreateTimechartModel, CreateBaseTable):
 
-    def __init__(self, categories=['incomes', 'deductions', 'attendances'],
+    def __init__(self, json_dir, categories=['incomes', 'deductions', 'attendances'],
             dataframeList=[], category_dataframe={'incomes': None, 'deductions': None, 'attendances': None}):
-        CreateTimechartModel.__init__(self)
-        CreateBaseTable.__init__(self)
+        CreateTimechartModel.__init__(self, json_dir)
+        CreateBaseTable.__init__(self, json_dir)
         self.categories = categories
         self.dataframeList = dataframeList
         self.category_dataframe = category_dataframe

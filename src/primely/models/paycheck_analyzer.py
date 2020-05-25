@@ -186,7 +186,7 @@ class FullAnalyzer(object):
         """Visualize data from json file and export a graph image """
         # TODO Implement sorting, renaming, camouflaging (0/3)
         try:
-            visual = visualizing.DataframeFactory()
+            visual = visualizing.DataframeFactory(JSON_STORAGE)
             visual.classify_json_data_in_categories(visual.categories)
             # visual.sort_table()
             # visual.rename_columns()
