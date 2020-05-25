@@ -1,18 +1,14 @@
-import configparser
 import os
 import pathlib
 
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-PDF_DIR_PATH = config['STORAGE']['PDF']
+PDF_DIR_PATH = 'data/input'
 
 
 def get_pkg_home_path(file_path):
-        """
-        input: __file__
-        output: Return a path of the package's home directory (three upper parents)"""
-        return os.path.abspath(os.path.join(os.path.dirname(file_path), '../'))
+    """
+    input: __file__
+    output: Return a path of the package's home directory (three upper parents)"""
+    return os.path.abspath(os.path.join(os.path.dirname(file_path), '../'))
 
 def load_pdf_filenames(base_dir):
     """List all pdf files in designated directory"""
