@@ -5,13 +5,8 @@ import os
 import pandas as pd
 import pathlib
 
-# TODO uncomment out the utils and rollback line 29 and 30
-from primely.views import utils
-
-JSON_DIR_PATH = 'data/tmp/json'
-GRAPHS_DIR_PATH = 'data/output/graphs_and_charts'
-INCOME_GRAPH_NAME = 'income_timechart.png'
 PAID_DATE = 'paid_date'
+
 
 class JsonLoaderModel(object):
     def __init__(self, filename, dir_path, dict_data=None):
@@ -26,10 +21,8 @@ class JsonLoaderModel(object):
             return json.load(json_file)
 
 class CreateTimechartModel(object):
-    def __init__(self, base_dir=None, filenames=None):
-        # if not base_dir:
-        #     base_dir = utils.get_base_dir_path(__file__)
-        # self.base_dir = base_dir
+    def __init__(self, json_dir, filenames=None):
+        self.json_dir = json_dir
         if not filenames:
             filenames = self._get_json_filenames()
         self.filenames = filenames
@@ -42,16 +35,15 @@ class CreateTimechartModel(object):
         :rtype filenames: list
         """
 
-        # json_full_dir_path = pathlib.Path(self.base_dir, JSON_DIR_PATH)
         if len(filenames) == 0:
-            # for item in os.listdir(json_full_dir_path):
-            for item in os.listdir(JSON_DIR_PATH):
+            for item in os.listdir(self.json_dir):
                 filenames.append(item)
         return filenames
 
 
 class CreateBaseTable(object):
-    def __init__(self, dataframe=None):
+    def __init__(self, json_dir, dataframe=None):
+        self.json_dir = json_dir
         self.dataframe = dataframe
 
     def create_base_table(self, category):
@@ -67,7 +59,7 @@ class CreateBaseTable(object):
             dates, keys, values, indexes = [], [], [], []
 
             # Get hash table from json
-            json_loader = JsonLoaderModel(filename, JSON_DIR_PATH)
+            json_loader = JsonLoaderModel(filename, self.json_dir)
             dict_data = json_loader.dict_data
 
             # Extract parameters by category type
@@ -94,10 +86,10 @@ class CreateBaseTable(object):
 
 class DataframeFactory(CreateTimechartModel, CreateBaseTable):
 
-    def __init__(self, categories=['incomes', 'deductions', 'attendances'],
+    def __init__(self, json_dir, categories=['incomes', 'deductions', 'attendances'],
             dataframeList=[], category_dataframe={'incomes': None, 'deductions': None, 'attendances': None}):
-        CreateTimechartModel.__init__(self)
-        CreateBaseTable.__init__(self)
+        CreateTimechartModel.__init__(self, json_dir)
+        CreateBaseTable.__init__(self, json_dir)
         self.categories = categories
         self.dataframeList = dataframeList
         self.category_dataframe = category_dataframe
@@ -169,21 +161,6 @@ class OrganizerModel(object):
         return self.response
 
 
-class PlotterModel(object):
-
-    def __init__(self, dataframe=None):
-        self.dataframe = dataframe
-
-    def save_graph_to_image(self):
-        file_path = pathlib.Path(GRAPHS_DIR_PATH, INCOME_GRAPH_NAME)
-        ax = self.dataframe.plot(
-            figsize=(15, 10), kind='bar', stacked=True, grid=True, sharey=False,
-            title='Income breakdown **Sample data was used for this graph**',
-            )
-        ax.set_ylabel('amount of income [yen]')
-        fig = ax.get_figure()
-        fig.savefig(file_path)
-
 def main():
     categories = ['incomes', 'deductions', 'attendances']
     visual = DataframeFactory()
@@ -200,9 +177,6 @@ def main():
     organizer.trigger_update_event()
     organizer.export_response_in_json()
 
-    # df = visual.dataframe
-    # plotter = PlotterModel(df)
-    # plotter.save_graph_to_image()
 
 if __name__ == "__main__":
     main()
