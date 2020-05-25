@@ -1,14 +1,11 @@
-import configparser
 import os
 import pathlib
 import shutil
 
-# import global parameters from config.ini
-config = configparser.ConfigParser()
-config.read('config.ini')
-PDF_DIR_PATH = config['STORAGE']['PDF']
-REPORT_DIR_PATH = config['STORAGE']['REPORT']
-REPORT_FILENAME = config['FILENAME']['REPORT']
+PDF_DIR_PATH = 'data/input'
+REPORT_DIR_PATH = 'data/output/json'
+REPORT_FILENAME = 'paycheck_timechart.json'
+TMP_DIR_PATH = 'data/tmp'
 
 def remove_report():
     file_path = pathlib.Path(REPORT_DIR_PATH, REPORT_FILENAME)
@@ -42,6 +39,10 @@ def remove_pdf():
 
     return True
 
+def remove_tmp():
+    if os.path.exists(TMP_DIR_PATH):
+        shutil.rmtree(TMP_DIR_PATH)
+
 
 if __name__ == "__main__":
-    remove_pdf()
+    remove_tmp()

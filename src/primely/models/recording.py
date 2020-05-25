@@ -3,10 +3,6 @@ import json
 import os
 import pathlib
 
-from primely.views import utils
-
-OUTPUT_DIR_PATH = 'data/tmp/json'
-
 
 class JsonModel(object):
 
@@ -52,20 +48,8 @@ class RecordingModel(JsonModel):
         }
     """
 
-    # def __init__(self, filename=None, base_dir=None, *args, **kwargs):
     def __init__(self, *args, **kwargs):
         JsonModel.__init__(self, **kwargs)
-        # self.filename = filename
-        # if not base_dir:
-        #     base_dir = utils.get_base_dir_path(__file__)
-        # self.base_dir = base_dir
-
-    # def get_json_dir(self, suffix='.json'):
-    #     """Organize output json path info"""
-    #     output_full_dir_path = pathlib.Path(self.base_dir, OUTPUT_DIR_PATH)
-    #     print('############:', output_full_dir_path)
-    #     utils.setup_output_dir(output_full_dir_path)
-    #     return pathlib.Path(output_full_dir_path, self.filename).with_suffix(suffix)
 
     def record_data_in_json(self, stack):
         """Export dict_data in json format"""
@@ -75,13 +59,6 @@ class RecordingModel(JsonModel):
 
         with open(output_json_path, 'w') as file_path:
             file_path.write(data_json)
-
-    # def record_dict_in_json(self, dict_data, output_path):
-    #     """Export dict_data in json format"""
-
-    #     data_json = json.dumps(dict_data, ensure_ascii=False, indent=4)
-    #     with open(output_path, 'w') as file_path:
-    #         file_path.write(data_json)
 
 
 if __name__ == "__main__":
