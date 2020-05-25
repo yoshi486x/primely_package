@@ -15,3 +15,8 @@ camouflage.py
 config.py
 aws/*
 *.egg-info
+tmp/
+dist/
+escape/
+build/
+venv/

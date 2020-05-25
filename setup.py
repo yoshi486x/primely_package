@@ -12,7 +12,7 @@ def read_requirements():
     return requirements
 
 setup(
-    name='primely_package',
+    name='primely',
     version='0.0.1',
     description='Converts paychecks and returns json parameters',
     long_description='README.md',
@@ -21,14 +21,17 @@ setup(
     install_requires=read_requirements(),
     url='https://github.com/yoshiki-o0/primely_package',
     lincense='LICENCE',
-    # package_dir={'': 'primely'},
-    # packages=find_packages(),
-    packages=[
-        'primely.controller',
-        'primely.models',
-        'primely.templates',
-        'primely.views',
-        'tests',
-    ],
-    test_suite='tests'
+    # packages=find_packages('core_primely'),
+    packages=find_packages('src'),
+    package_dir={'': 'src'},
+    # packages=[
+    #     'core_primely.controller',
+    #     'core_primely.models',
+    #     'core_primely.templates',
+    #     'core_primely.views',
+    #     'tools'
+    # ]
+    # ,
+    # test_suite='tests'
+    package_data={'': ['templates/*.txt']}
 )

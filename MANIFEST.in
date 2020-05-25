@@ -1,0 +1,2 @@
+exclude main.py
+global-exclude *.pyc, *.pdf, *.txt, *.json
