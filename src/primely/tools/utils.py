@@ -7,6 +7,15 @@ REPORT_DIR_PATH = 'data/output/json'
 REPORT_FILENAME = 'paycheck_timechart.json'
 TMP_DIR_PATH = 'data/tmp'
 
+"""Get data from storage"""
+from primely.models import visualizing
+
+def get_json_timechart():
+    json_loader = visualizing.JsonLoaderModel(REPORT_FILENAME, REPORT_DIR_PATH)
+    return json_loader.dict_data
+
+
+"""Operate on directory and files"""
 def create_data_dir():
     dir_path = 'data/input'
     os.makedirs(dir_path, exist_ok=True)
