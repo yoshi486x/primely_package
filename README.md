@@ -9,7 +9,7 @@
 
 ## Getting Started
 <!-- TODO: Update below dates every time you commit!  -->
-**Update(April 18, 2020)**: Paycheck at where I work is published by a PDF file. Just reading them, might be enough for checking errors, but do you not want to see *trends* over time?
+**Update(May 18, 2020)**: Paycheck at where I work is published by a PDF file. Just reading them, might be enough for checking errors, but do you not want to see *trends* over time?
 
 This package can provide a json response where a series of paychecks are organized and stored in one file. Download and try putting your pdf file in the suggested folder where instructed below.
 
@@ -60,22 +60,20 @@ python <package_home_dir_path>/main.py
 
 If the process completes successfully, the json response will be extracted under `data/output/json/`.
 
-## Utilize as a package
+## Install pre-built package
 
-### Extract from tarball
-
-Download tarball from `primely_package/dist/<package_name>`.
-
-Move to the work directory where tarball is set.
+Pre-built package is stored in `dist/`
 
 ```bash
-cd <path_to_work_dir>
+pip install dist/primely_<rest_of_pkg_name>
 ```
 
-Extract the package.
+Confirm installation.
 
 ```bash
-tar -zxvf <package_name>
+python
+>>> import primely
+>>>
 ```
 
 ## Built With
